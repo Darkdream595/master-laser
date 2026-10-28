@@ -1,0 +1,300 @@
+/* ============================================================
+ * 《激光大师 · Master Laser》样式
+ * 夜市摊位主题：炭黑漆框 · 熔金描边 · 朱砂按钮 · 黄铜铆钉
+ * 窗口语言：切角外框 + 双线金边 + 挂牌标题，和屏内 HUD 面板一致
+ * ============================================================ */
+
+:root {
+  --ink: #140d09;
+  --lacquer-0: #2e1a10;
+  --lacquer-1: #170c07;
+  --gold: #d9963e;
+  --gold-hi: #ffe0a6;
+  --gold-lo: #7a4818;
+  --cinnabar: #c8401e;
+  --cinnabar-hi: #ff7a3c;
+  --paper: #f6e6c8;
+  --muted: rgba(246, 230, 200, 0.62);
+  --cut: 18px;              /* 窗口切角 */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
+
+body {
+  color: var(--paper);
+  font-family: system-ui, 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- 三层画布 ---------- */
+#bg, #gl, #world {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+#bg { z-index: 0; }
+#gl { z-index: 1; pointer-events: none; }
+#world { z-index: 2; }
+
+/* ---------- 覆盖层 ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px))
+           max(24px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px));
+  background: radial-gradient(ellipse at center, rgba(20, 10, 4, 0.35), rgba(8, 4, 2, 0.72));
+  pointer-events: none;          /* 空白处的拖拽穿透给游戏 */
+}
+.overlay > * { pointer-events: auto; }
+.hidden { display: none !important; }
+
+/* ---------- 游戏窗口 ----------
+ * 外层 clip-path 切角 + 金色描边（用两层背景模拟：外圈金、内圈漆），
+ * ::before 画内侧细金线，::after 画顶部高光；四角铆钉用 .rivet */
+.win {
+  --c: var(--cut);
+  position: relative;
+  width: min(420px, 92vw);
+  padding: 46px clamp(22px, 5vw, 36px) 28px;
+  text-align: center;
+  clip-path: polygon(var(--c) 0, calc(100% - var(--c)) 0, 100% var(--c), 100% calc(100% - var(--c)),
+                     calc(100% - var(--c)) 100%, var(--c) 100%, 0 calc(100% - var(--c)), 0 var(--c));
+  background:
+    linear-gradient(180deg, var(--lacquer-0), var(--lacquer-1)) padding-box,
+    linear-gradient(160deg, var(--gold-hi), var(--gold) 35%, var(--gold-lo) 70%, var(--gold)) border-box;
+  border: 3px solid transparent;
+  animation: win-in 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+.win::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  --c2: calc(var(--c) - 6px);
+  clip-path: polygon(var(--c2) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c2)),
+                     calc(100% - var(--c2)) 100%, var(--c2) 100%, 0 calc(100% - var(--c2)), 0 var(--c2));
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 220, 160, 0.025) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, rgba(255, 210, 150, 0.06), transparent 40%);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 150, 0.32);
+  pointer-events: none;
+}
+.win > * { position: relative; }
+@keyframes win-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.92); }
+  to   { opacity: 1; transform: none; }
+}
+
+.rivet {
+  position: absolute !important;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3cc, var(--gold) 45%, #4a2508 100%);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+.rivet.tl { left: 14px; top: 14px; }
+.rivet.tr { right: 14px; top: 14px; }
+.rivet.bl { left: 14px; bottom: 14px; }
+.rivet.br { right: 14px; bottom: 14px; }
+
+/* 挂牌标题：朱砂底 + 金边燕尾牌，压在窗口上沿 */
+.win-plate {
+  margin: -24px auto 6px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 34px 10px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%);
+  background: linear-gradient(180deg, var(--cinnabar-hi), var(--cinnabar) 55%, #7c200c);
+  box-shadow: inset 0 2px 0 rgba(255, 220, 170, 0.45), inset 0 -2px 0 rgba(60, 10, 0, 0.5);
+}
+
+/* clip-path 会裁掉元素自身的投影，所以阴影交给外层滤镜 */
+.overlay > .win { filter: none; }
+.overlay { --shadow: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.7)); }
+.overlay:not(.hidden) > .win { filter: var(--shadow); }
+
+/* ---------- 文字 ---------- */
+.title, .go-title, .pause-title {
+  white-space: nowrap;
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+  line-height: 1.1;
+  color: #fff4dc;
+  text-shadow: 0 2px 0 #6e1c08, 0 0 18px rgba(255, 170, 80, 0.45);
+}
+.go-title, .pause-title { font-size: clamp(22px, 6vw, 30px); }
+.subtitle {
+  margin-top: 14px;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--gold-hi);
+}
+.howto {
+  list-style: none;
+  margin: 20px auto 0;
+  width: fit-content;
+  text-align: left;
+  font-size: 14px;
+  line-height: 2.1;
+  color: var(--muted);
+}
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  margin-right: 10px;
+  padding: 0 4px;
+  font: 800 12px/1 inherit;
+  color: #2a1406;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  border-radius: 3px;
+  box-shadow: 0 2px 0 var(--gold-lo), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  vertical-align: 1px;
+}
+.best-line, .go-best {
+  margin-top: 16px;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.best-line b, .go-best b { color: var(--gold-hi); font-weight: 800; }
+/* 免责声明：小字压底，不抢主视觉；不设 display，保证 hidden 属性生效 */
+.disclaimer {
+  margin: 14px auto 0;
+  max-width: 34em;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-align: left;
+}
+
+/* ---------- 机身配色 ---------- */
+.finish {
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 14px;
+  width: fit-content;
+  border-top: 1px solid rgba(217, 150, 62, 0.35);
+  border-bottom: 1px solid rgba(217, 150, 62, 0.35);
+}
+.finish-label { font-size: 12px; letter-spacing: 0.3em; color: var(--muted); }
+.swatch {
+  width: 26px;
+  height: 26px;
+  border: none;
+  cursor: pointer;
+  transform: rotate(45deg) scale(0.78);   /* 菱形宝石色块 */
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--gold-lo);
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.swatch-night { background: linear-gradient(135deg, #8a7c6c, #2a2622 55%, #120e0b); }
+.swatch-star  { background: linear-gradient(135deg, #fffdf8, #d8d2c6 60%, #a39d92); }
+.swatch:hover { transform: rotate(45deg) scale(0.88); }
+.swatch[aria-checked="true"] {
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--lacquer-1), 0 0 0 4px var(--gold-hi),
+              0 0 14px rgba(255, 190, 100, 0.6);
+}
+.swatch:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 5px; }
+.finish-name { min-width: 4em; font-size: 13px; letter-spacing: 0.12em; color: var(--paper); text-align: left; }
+
+/* ---------- 按钮：朱砂漆牌 + 金描边 + 按下下沉 ---------- */
+.btn {
+  --c: 10px;
+  position: relative;
+  margin-top: 24px;
+  padding: 3px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-lo));
+  clip-path: polygon(var(--c) 0, calc(100% - var(--c)) 0, 100% 50%, calc(100% - var(--c)) 100%, var(--c) 100%, 0 50%);
+  transition: transform 0.12s ease, filter 0.16s ease;
+}
+.btn > span {
+  display: block;
+  padding: 13px 52px 15px;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  color: #fff4dc;
+  text-shadow: 0 2px 0 #5a1404;
+  background: linear-gradient(180deg, var(--cinnabar-hi), var(--cinnabar) 55%, #8a240e);
+  clip-path: inherit;
+  box-shadow: inset 0 2px 0 rgba(255, 220, 170, 0.5), inset 0 -4px 0 rgba(70, 12, 0, 0.55);
+}
+.btn:hover { filter: brightness(1.12) saturate(1.1); }
+.btn:active { transform: translateY(2px) scale(0.97); }
+.btn:active > span { box-shadow: inset 0 3px 6px rgba(70, 12, 0, 0.6); }
+.btn:focus-visible { outline: none; filter: brightness(1.15) drop-shadow(0 0 8px rgba(255, 200, 120, 0.9)); }
+
+/* ---------- 结算 ---------- */
+.win-danger .win-plate { background: linear-gradient(180deg, #5a5048, #2e2824 55%, #15110e); }
+.go-label { margin-top: 14px; font-size: 12px; letter-spacing: 0.4em; color: var(--muted); }
+.go-score {
+  font-size: clamp(52px, 14vw, 72px);
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--gold-hi);
+  text-shadow: 0 3px 0 var(--gold-lo), 0 0 26px rgba(255, 150, 60, 0.45);
+}
+.go-line { margin-top: 16px; min-height: 1.6em; font-size: 14px; line-height: 1.6; color: var(--paper); opacity: 0.85; }
+
+.go-reason { margin-top: 10px; font-size: 13px; letter-spacing: 0.12em; color: var(--muted); }
+/* 手机报废结局：挂牌换朱砂红烧焦色，原因文字泛红 */
+.is-broken .win-plate { background: linear-gradient(180deg, #ff5a3c, #8a1c0c 55%, #2a0804); }
+.is-broken .go-reason { color: #ff8a6a; }
+
+/* ---------- 玩法简介 ---------- */
+.win-intro { width: min(440px, 92vw); }
+.intro-title { font-size: clamp(20px, 5vw, 26px); font-weight: 900; letter-spacing: 0.14em; text-indent: 0.14em; color: #fff4dc; text-shadow: 0 2px 0 #6e1c08; white-space: nowrap; }
+.intro-icon { margin-top: 14px; font-size: 44px; line-height: 1.2; }
+.intro-body { margin: 10px auto 0; max-width: 34em; min-height: 7.2em; font-size: 14px; line-height: 1.8; color: var(--paper); text-align: left; }
+.intro-body b { color: var(--gold-hi); font-weight: 800; }
+.intro-step { margin-top: 12px; font-size: 12px; letter-spacing: 0.3em; color: var(--muted); }
+.intro-nav { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.intro-nav .btn { margin-top: 16px; }
+.intro-nav .btn > span { padding: 11px 30px 13px; font-size: 15px; }
+.btn-ghost > span { background: linear-gradient(180deg, #4a3020, #2a180e 55%, #160b06); }
+.btn:disabled { opacity: 0.35; cursor: default; filter: none; }
+.btn:disabled:active { transform: none; }
+
+/* ---------- 暂停 ---------- */
+.win-small { width: min(300px, 86vw); padding-bottom: 24px; }
+.pause-hint { margin-top: 10px; font-size: 13px; letter-spacing: 0.1em; color: var(--muted); animation: breathe 1.8s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+/* 菜单不压暗，手机在右侧做开合演示；宽屏时窗口靠左让位 */
+#overlay-menu { background: transparent; }
+@media (min-aspect-ratio: 6/5) {
+  #overlay-menu { justify-content: flex-start; padding-left: 5vw; }
+  #overlay-menu .win { width: min(400px, 32vw); min-width: 320px; }
+}
+/* 竖屏：窗口压到底部，手机在上方演示 */
+@media (max-aspect-ratio: 6/5) {
+  #overlay-menu { align-items: flex-end; }
+  #overlay-menu .win { padding-top: 40px; }
+  #overlay-menu .howto, #overlay-menu .subtitle { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win, .pause-hint { animation: none; }
+}

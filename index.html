@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#140d09">
+  <title>激光大师 · Master Laser</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 三层画布：bg 桌面与投影 / gl 3D 机身（WebGL2）/ world 提示层兼降级层（同时接收拖拽） -->
+  <canvas id="bg"></canvas>
+  <canvas id="gl"></canvas>
+  <canvas id="world"></canvas>
+
+  <!-- 主菜单：游戏内窗口（切角漆框 + 金边 + 铆钉 + 挂牌标题） -->
+  <div id="overlay-menu" class="overlay">
+    <section class="win" aria-labelledby="t-menu">
+      <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
+      <header class="win-plate"><h1 id="t-menu" class="title">激光大师</h1></header>
+      <p class="subtitle">漏液不是故障，是光剑。</p>
+      <ul class="howto">
+        <li><kbd>拖</kbd>按住左半屏翻盖，左拉展开、右推合上</li>
+        <li><kbd>长</kbd>开得越大，光束越长</li>
+        <li><kbd>串</kbd>串起水果，躲开 💣</li>
+      </ul>
+      <div class="finish" role="radiogroup" aria-label="机身配色">
+        <span class="finish-label">机身</span>
+        <button class="swatch swatch-night" type="button" role="radio" data-finish="night" aria-label="炭金黑"></button>
+        <button class="swatch swatch-star" type="button" role="radio" data-finish="star" aria-label="月光白"></button>
+        <span id="finish-name" class="finish-name">炭金黑</span>
+      </div>
+      <button id="btn-start" class="btn" type="button"><span>开合开始</span></button>
+      <p class="best-line">历史最佳 <b id="menu-best">0</b></p>
+      <p class="disclaimer">免责声明：本游戏纯属虚构，不指代任何实际的人物、组织、产品或事件，如有雷同纯属巧合。游戏中的手机形态、「高管语录」「菠萝售后」等内容均为戏仿创作，与任何厂商无关，不代表任何厂商立场，也不构成对任何真实产品质量的评价或事实陈述。文中提及的商标归各自权利人所有。请勿暴力开合你的真实手机。</p>
+    </section>
+  </div>
+
+  <!-- 玩法简介：逐页翻完才开始游戏（main.js 的 INTRO_PAGES 填内容） -->
+  <div id="overlay-intro" class="overlay hidden">
+    <section class="win win-intro" aria-labelledby="t-intro" aria-live="polite">
+      <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
+      <header class="win-plate"><h2 id="t-intro" class="intro-title">玩法</h2></header>
+      <p id="intro-icon" class="intro-icon" aria-hidden="true">🍢</p>
+      <p id="intro-body" class="intro-body"></p>
+      <p id="intro-step" class="intro-step">1 / 1</p>
+      <!-- 只在第 1 页显示，main.js renderIntro 控制 -->
+      <p id="intro-disclaimer" class="disclaimer">免责声明：本游戏纯属虚构，不指代任何实际的人物、组织、产品或事件，如有雷同纯属巧合。游戏中的手机形态、「高管语录」「菠萝售后」等内容均为戏仿创作，与任何厂商无关，不代表任何厂商立场，也不构成对任何真实产品质量的评价或事实陈述。文中提及的商标归各自权利人所有。请勿暴力开合你的真实手机。</p>
+      <div class="intro-nav">
+        <button id="btn-intro-prev" class="btn btn-ghost" type="button"><span>上一页</span></button>
+        <button id="btn-intro-next" class="btn" type="button"><span>下一页</span></button>
+        <button id="btn-intro-skip" class="btn btn-ghost" type="button"><span>跳过并开始</span></button>
+      </div>
+    </section>
+  </div>
+
+  <!-- 结算：endReason 为 broken 时标题/原因/语录换成「手机报废」一套 -->
+  <div id="overlay-gameover" class="overlay hidden">
+    <section class="win win-danger" aria-labelledby="t-go">
+      <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
+      <header class="win-plate"><h2 id="t-go" class="go-title">光束熄灭</h2></header>
+      <p id="gameover-reason" class="go-reason">光液耗尽</p>
+      <p class="go-label">本局得分</p>
+      <p id="score-final" class="go-score">0</p>
+      <p class="go-best">历史最佳 <b id="best-final">0</b></p>
+      <p id="gameover-line" class="go-line">折痕，是光进来的地方。</p>
+      <button id="btn-restart" class="btn" type="button"><span>再来一局</span></button>
+    </section>
+  </div>
+
+  <!-- 暂停 -->
+  <div id="overlay-pause" class="overlay hidden">
+    <section class="win win-small" aria-labelledby="t-pause">
+      <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
+      <header class="win-plate"><h2 id="t-pause" class="pause-title">已暂停</h2></header>
+      <p class="pause-hint">按 <kbd>P</kbd> 继续</p>
+    </section>
+  </div>
+
+  <!-- 按契约顺序加载：config → game → input → render → main -->
+  <script src="js/config.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/phone-screen.js"></script>
+  <script src="js/phone-body.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
