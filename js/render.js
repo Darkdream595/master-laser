@@ -48,6 +48,9 @@
     ctx.font = Math.max(1, size).toFixed(1) + 'px ' + FONT_EMOJI;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    /* 必须显式给不透明填充：部分手机浏览器画彩色 emoji 会套用当前 fillStyle 的透明度，
+     * 沿用裂纹留下的透明渐变时水果会整片隐身（桌面 Chromium 忽略 fillStyle，所以电脑上看不出） */
+    ctx.fillStyle = '#fff';
     ctx.fillText(ch, 0, 0);
     ctx.restore();
   }

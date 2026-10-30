@@ -4,7 +4,7 @@
 
 ### 折痕漏液？不，那是光剑 ⚔️ ( •̀ ω •́ )✧
 
-![version](https://img.shields.io/badge/version-2.6.0-f5b041?style=for-the-badge)
+![version](https://img.shields.io/badge/version-2.6.1-f5b041?style=for-the-badge)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas%20%2B%20WebGL-e34f26?style=for-the-badge&logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-f7df1e?style=for-the-badge&logo=javascript&logoColor=black)
 ![dependencies](https://img.shields.io/badge/dependencies-0-2ecc71?style=for-the-badge)

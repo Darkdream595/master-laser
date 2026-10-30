@@ -285,6 +285,7 @@
     ctx.font = size.toFixed(2) + 'px ' + EMOJI;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';   // 部分手机浏览器彩色 emoji 会套用 fillStyle 透明度，不能沿用上一个绘制留下的渐变
     ctx.fillText(ch, x, y);
   }
 
