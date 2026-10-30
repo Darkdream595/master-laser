@@ -20,7 +20,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body { width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
+html, body { width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; background: var(--ink); }
 
 body {
   color: var(--paper);
@@ -276,6 +276,23 @@ kbd {
 .btn-ghost > span { background: linear-gradient(180deg, #4a3020, #2a180e 55%, #160b06); }
 .btn:disabled { opacity: 0.35; cursor: default; filter: none; }
 .btn:disabled:active { transform: none; }
+
+/* ---------- 音效开关：低调的切角小牌，和漆框金边一个语言 ---------- */
+.sfx-toggle {
+  margin-top: 14px;
+  padding: 6px 16px;
+  border: 1px solid rgba(217, 150, 62, 0.45);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.sfx-toggle:hover { color: var(--gold-hi); border-color: var(--gold-hi); }
+.sfx-toggle:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px; }
 
 /* ---------- 暂停 ---------- */
 .win-small { width: min(300px, 86vw); padding-bottom: 24px; }

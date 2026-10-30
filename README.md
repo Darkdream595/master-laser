@@ -4,7 +4,7 @@
 
 ### 折痕漏液？不，那是光剑 ⚔️ ( •̀ ω •́ )✧
 
-![version](https://img.shields.io/badge/version-2.5.0-f5b041?style=for-the-badge)
+![version](https://img.shields.io/badge/version-2.6.0-f5b041?style=for-the-badge)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas%20%2B%20WebGL-e34f26?style=for-the-badge&logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-f7df1e?style=for-the-badge&logo=javascript&logoColor=black)
 ![dependencies](https://img.shields.io/badge/dependencies-0-2ecc71?style=for-the-badge)
@@ -72,6 +72,7 @@
 | ␣ `Space` | 菜单：打开简介；简介：下一页；结算：再来一局 |
 | ⎋ `Esc` | 简介中：跳过并开始 |
 | ⏸️ `P` | 暂停 / 继续 |
+| 🔊 `M` 或菜单「声音」按钮 | 开 / 关声音（音效 + 背景音乐），偏好会记住 |
 | 💤 切到后台 | 自动暂停，回来按 `P` 继续 |
 
 松手时如果离端点很近，翻盖会磁吸到全开或全合，并带一下回弹 (๑•̀ㅂ•́)و✧
@@ -236,6 +237,7 @@
 ├─ 🎨 css/style.css
 └─ 📂 js/
    ├─ ⚙️ config.js       CFG 全部数值 + G 状态壳
+   ├─ 🔊 sfx.js          Web Audio 即时合成的音效、光束嗡鸣与背景音乐（无音频文件）
    ├─ 🧠 game.js         生成 / 物理 / 判定 / 计分 / 超载 / 随机事件
    ├─ 🖐️ input.js        翻盖拖动 + 键盘 → G.foldTarget
    ├─ 📱 phone-screen.js 屏幕内容：战场、HUD、通知、顶部胶囊、孤岛

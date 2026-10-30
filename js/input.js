@@ -47,7 +47,24 @@
         dragId = e.pointerId;
         lastX = e.clientX;
         setCursor('grabbing');
+        /* 嵌在托管页 iframe 里时，指针拖出 iframe 边界会丢 move/up；显式捕获让事件始终回到本文档 */
+        if (e.target === canvas) {   // 只捕获到画布，按在覆盖层按钮上时不改按钮的点击行为
+          try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* 指针已失效时抛错，忽略 */ }
+        }
       });
+
+      /* 真机上浏览器/WebView 会把横向拖动判成滚动或侧滑手势，随即发 pointercancel 中断拖拽；
+       * 部分手机浏览器还会把 iframe 里的滑动连带到外层托管页滚动。touch-action 在部分 WebView 不可靠，
+       * 这里用非 passive 的 touch 监听显式 preventDefault。只拦落在画布上且在翻盖内的触摸：
+       * 覆盖层的按钮、可滚动的简介文字都不是画布，点击与滚动不受影响 */
+      window.addEventListener('touchstart', function (e) {
+        var t = e.touches[0];
+        if (!t || e.target !== canvas || !onFlap(t.clientX, t.clientY)) return;
+        e.preventDefault();
+      }, { passive: false });
+      window.addEventListener('touchmove', function (e) {
+        if (dragging) e.preventDefault();
+      }, { passive: false });
 
       window.addEventListener('pointermove', function (e) {
         if (!dragging) {

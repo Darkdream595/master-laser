@@ -33,6 +33,7 @@
       </div>
       <button id="btn-start" class="btn" type="button"><span>开合开始</span></button>
       <p class="best-line">历史最佳 <b id="menu-best">0</b></p>
+      <button id="btn-sfx" class="sfx-toggle" type="button" aria-pressed="true">🔊 声音：开</button>
       <p class="disclaimer">免责声明：本游戏纯属虚构，不指代任何实际的人物、组织、产品或事件，如有雷同纯属巧合。游戏中的手机形态、「高管语录」「菠萝售后」等内容均为戏仿创作，与任何厂商无关，不代表任何厂商立场，也不构成对任何真实产品质量的评价或事实陈述。文中提及的商标归各自权利人所有。请勿暴力开合你的真实手机。</p>
     </section>
   </div>
@@ -74,12 +75,13 @@
     <section class="win win-small" aria-labelledby="t-pause">
       <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
       <header class="win-plate"><h2 id="t-pause" class="pause-title">已暂停</h2></header>
-      <p class="pause-hint">按 <kbd>P</kbd> 继续</p>
+      <p class="pause-hint">按 <kbd>P</kbd> 继续 · <kbd>M</kbd> 声音</p>
     </section>
   </div>
 
-  <!-- 按契约顺序加载：config → game → input → render → main -->
+  <!-- 按契约顺序加载：config → sfx → game → input → render → main -->
   <script src="js/config.js"></script>
+  <script src="js/sfx.js"></script>
   <script src="js/game.js"></script>
   <script src="js/input.js"></script>
   <script src="js/phone-screen.js"></script>

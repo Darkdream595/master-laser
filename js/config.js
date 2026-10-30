@@ -7,7 +7,7 @@
   'use strict';
 
   window.CFG = {
-    VERSION: '2.5.0',
+    VERSION: '2.6.0',
     TITLE: '激光大师 · Master Laser',
 
     /* —— 布局（v2.1：游戏装进手机屏幕 + 真 3D 翻盖）——

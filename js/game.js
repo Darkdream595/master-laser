@@ -40,6 +40,9 @@
     G.popups.push({ x: x, y: y, text: text, color: color, life: POPUP_LIFE, maxLife: POPUP_LIFE });
   }
 
+  /* 音效事件：只推纯数据，由 main 循环交给 Sfx 播放（本文件不碰 DOM，红线不破） */
+  function pushSfx(name, v) { G.sfxQueue.push({ name: name, v: v }); }
+
   function addParticles(x, y, n, colors, spMin, spMax, g) {
     for (var i = 0; i < n; i++) {
       if (G.particles.length >= MAX_PARTICLES) G.particles.shift();
@@ -157,6 +160,7 @@
         G.overload = 0;
         G.foldHalves = 0;
         G.blurT = CFG.OVERLOAD_BLUR_TIME;   // 超载后遗症：整机模糊，与开合无关
+        pushSfx('overloadEnd');
       }
       return;
     }
@@ -170,6 +174,7 @@
       G.foldHalves = 0;
       G.shake = SHAKE_AMP * 1.6;
       addPopup(G.AW * 0.5, G.beamY - 60, '⚡ 激光超载', COLOR_GOLD);
+      pushSfx('overload');
     }
   }
 
@@ -204,6 +209,7 @@
     G.isleRounds = 0;      // 结算画面要看得全
     G.best = Math.max(G.best, G.score);
     saveBest();            // 显示归 main.js
+    pushSfx(reason === 'broken' ? 'broken' : 'gameover');
   }
 
   /* 扣血：连串（≥ STREAK_MIN）中被打断时一次性重罚，随后连串清零，下一次按普通数值 */
@@ -223,6 +229,7 @@
     }
     addParticles(x, y - CFG.GRAZE_H * 0.5, GRAZE_N, GRAZE_COLORS, 80, 160, 0);
     addPopup(x, y - CFG.GRAZE_H - 10, full ? '擦弹' : '擦弹 +' + CFG.GRAZE_HEAL, COLOR_GREEN);
+    pushSfx('graze');
   }
 
   /* 投射物物理 + 逐帧判定；judge=false（gameover）时只飞不判 */
@@ -255,6 +262,7 @@
               if (G.overload > 0) {
                 /* 超载光束直接把炸弹熔掉：无伤害、不打断连串 */
                 addPopup(xc, beamY, '熔毁 💥', COLOR_GOLD);
+                pushSfx('melt');
               } else {
                 var bd = hurt(CFG.DMG_BOMB, CFG.DMG_BOMB_STREAK);
                 G.flashRed = 1;
@@ -264,6 +272,7 @@
                 if (navigator.vibrate) { try { navigator.vibrate(Math.round(CFG.BUZZ_TIME * 1000)); } catch (e) {} }
                 G.lastHurt = 'bomb';
                 addPopup(xc, beamY, '-' + bd + ' 💥', COLOR_RED);
+                pushSfx('bomb');
               }
             }
             /* 否则炸弹无惩罚，继续飞（漏掉不罚）；之前压在光束上方擦弹带里的，算擦弹 */
@@ -289,10 +298,12 @@
             if (G.streak % CFG.OVERLOAD_RESTORE_STREAK === 0 && G.overloadCharges < CFG.OVERLOAD_CHARGES) {
               G.overloadCharges++;
               addPopup(xc, beamY - 34, '⚡ 超载次数 +1', COLOR_GOLD);
+              pushSfx('charge');
             }
             G.skewers.push({ x: xc, emoji: f.emoji, r: f.r, life: CFG.SKEWER_LIFE, maxLife: CFG.SKEWER_LIFE });
             addParticles(xc, beamY, JUICE_N, JUICE_COLORS, 50, 260, 520);
             addPopup(xc, beamY, mult > 1 ? '+' + pts + ' ×' + mult : '+' + pts, COLOR_GOLD);
+            pushSfx('pierce', mult);
           }
           /* 否则：越过尖端飞过，不处理，等落穿或坠出屏幕 */
         }
@@ -304,6 +315,7 @@
           G.flashGray = 1;
           G.lastHurt = 'miss';
           addPopup(clamp(f.x, 40, G.AW - 40), G.AH - 70, '-' + md + ' 漏接', COLOR_GRAY);
+          pushSfx('miss');
         }
         G.fruits.splice(i, 1);
       }
@@ -365,6 +377,7 @@
     G.skewers = [];
     G.particles = [];
     G.popups = [];
+    G.sfxQueue = [];      // 音效事件队列（纯数据），main 循环里由 Sfx 排空
     G.flashRed = 0;
     G.flashGray = 0;
     G.shake = 0;
@@ -411,6 +424,7 @@
       /* 先 3-2-1 倒计时再进 playing；COUNTDOWN 设 0 则直接开打 */
       G.countdown = Math.max(0, CFG.COUNTDOWN || 0);
       G.state = G.countdown > 0 ? 'countdown' : 'playing';
+      if (G.countdown > 0) pushSfx('tick');   // 起步就是"3"，整秒处再各哔一次
     },
 
     /* 生成策略接口：fn(isBomb, W) → { lo, hi, bias, guard }，见 SPAWN_MODES 注释 */
@@ -451,11 +465,15 @@
         /* 倒计时：可以先把手机开合到想要的位置，但不生成、不判定、不计开合次数、不走游戏时钟 */
         updateFold(dt);
         updateEffects(dt);
+        var prevTick = Math.ceil(G.countdown);
         G.countdown -= dt;
         if (G.countdown <= 0) {
           G.countdown = 0;
           G.state = 'playing';
           addPopup(G.AW * 0.5, G.beamY - 60, '开串！', COLOR_GOLD);
+          pushSfx('go');
+        } else if (Math.ceil(G.countdown) !== prevTick) {
+          pushSfx('tick');
         }
         return;
       }

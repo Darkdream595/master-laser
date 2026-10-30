@@ -102,11 +102,25 @@
     }
   }
 
+  /* 声音开关按钮与 M 键共用：切静音、同步文案，解除静音时"嗒"一声确认 */
+  function toggleSfx() {
+    Sfx.toggleMuted();
+    syncSfxBtn();
+    if (!Sfx.muted()) Sfx.play('click');
+  }
+
+  function syncSfxBtn() {
+    var m = Sfx.muted();
+    els.btnSfx.textContent = m ? '🔇 声音：关' : '🔊 声音：开';
+    els.btnSfx.setAttribute('aria-pressed', m ? 'false' : 'true');
+  }
+
   function frame(now) {
     var dt = last ? (now - last) / 1000 : 0;
     last = now;
     Input.update(dt);
     Game.update(dt);
+    Sfx.update(dt);      // 排空音效事件队列 + 光束嗡鸣/磁吸等轮询音
     Render.draw(dt);
     syncOverlays();
     requestAnimationFrame(frame);
@@ -134,32 +148,43 @@
       btnIntroNext: document.getElementById('btn-intro-next'),
       btnIntroPrev: document.getElementById('btn-intro-prev'),
       btnIntroSkip: document.getElementById('btn-intro-skip'),
+      btnSfx: document.getElementById('btn-sfx'),
     };
 
     Render.init();   // 内部先 resize，G.W/G.H 就位
     Input.init();
     Game.init();
+    Sfx.init();
 
     /* 从菜单开始都先看简介；结算页「再来一局」直接开打 */
     els.btnStart.addEventListener('click', function () {
       els.btnStart.blur();   // 防止随后按 Space 误触按钮
+      Sfx.play('click');
       openIntro();
     });
     els.btnIntroNext.addEventListener('click', function () {
       els.btnIntroNext.blur();
+      Sfx.play('click');
       introNext();
     });
     els.btnIntroPrev.addEventListener('click', function () {
       els.btnIntroPrev.blur();
+      Sfx.play('click');
       introPrev();
     });
     els.btnIntroSkip.addEventListener('click', function () {
       els.btnIntroSkip.blur();
+      Sfx.play('click');
       introSkip();
     });
     els.btnRestart.addEventListener('click', function () {
       els.btnRestart.blur();
+      Sfx.play('click');
       Game.startGame();
+    });
+    els.btnSfx.addEventListener('click', function () {
+      els.btnSfx.blur();
+      toggleSfx();
     });
 
     /* 机身配色切换（纯表现，PhoneArt 自己存 localStorage） */
@@ -176,23 +201,29 @@
       swatches[s].addEventListener('click', function (e) {
         PhoneArt.setFinish(e.currentTarget.getAttribute('data-finish'));
         e.currentTarget.blur();
+        Sfx.play('click');
         syncFinish();
       });
     }
     syncFinish();
+    syncSfxBtn();   // 按上次的静音偏好显示文案
 
     window.addEventListener('keydown', function (e) {
+      if (e.key === 'm' || e.key === 'M') {   // 任何界面随时切音效
+        if (!e.repeat) toggleSfx();            // 按住不放会连发 keydown，只认第一下
+        return;
+      }
       if (introPage >= 0) {
         /* 简介打开时：Space/Enter/→ 下一页，← 上一页；方向键不再传给翻盖 */
-        if (e.key === ' ' || e.code === 'Space' || e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); introNext(); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); introPrev(); }
-        else if (e.key === 'Escape') { e.preventDefault(); introSkip(); }
+        if (e.key === ' ' || e.code === 'Space' || e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); Sfx.play('click'); introNext(); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); Sfx.play('click'); introPrev(); }
+        else if (e.key === 'Escape') { e.preventDefault(); Sfx.play('click'); introSkip(); }
         return;
       }
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
-        if (G.state === 'menu') openIntro();
-        else if (G.state === 'gameover') Game.startGame();
+        if (G.state === 'menu') { Sfx.play('click'); openIntro(); }
+        else if (G.state === 'gameover') { Sfx.play('click'); Game.startGame(); }
       } else if (e.key === 'p' || e.key === 'P') {
         if (G.state === 'playing' || G.state === 'paused') Game.togglePause();
       }
